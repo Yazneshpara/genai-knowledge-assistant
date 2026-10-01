@@ -1,0 +1,8 @@
+SmartPay is a conceptual biometric payment system that allows customers to pay in stores using only their fingerprint, without needing cash or a physical card.
+
+Architecture Overview:
+1. Enrollment: A customer registers by linking their bank account and credit/debit card details to a secure profile, then scanning their fingerprint on a certified enrollment device.
+2. Secure Storage: The fingerprint is converted into a mathematical template (not a raw image) and stored in an encrypted vault, separate from the linked payment credentials.
+3. Point-of-Sale Device: Stores use a SmartPay terminal with a fingerprint scanner. When a customer places their finger on the scanner, the terminal captures a new fingerprint template.
+4. Matching and Authorization: The terminal sends the new template to SmartPay's servers, which compare it against enrolled templates. On a match, the system authorizes a transaction using the linked payment method.
+5. Settlement: Once authorized, funds move from the customer's linked bank account or card issuer to the merchant, similar to a standard card transaction.

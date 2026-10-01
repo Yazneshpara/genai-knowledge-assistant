@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: genai-knowledge-assistant
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: genai-knowledge-assistant
+  template:
+    metadata:
+      labels:
+        app: genai-knowledge-assistant
+    spec:
+      containers:
+        - name: genai-knowledge-assistant
+          image: genai-knowledge-assistant:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - secretRef:
+                name: genai-secrets
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: genai-knowledge-assistant-service
+spec:
+  selector:
+    app: genai-knowledge-assistant
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+  type: NodePort

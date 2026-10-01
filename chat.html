@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GenAI Knowledge Assistant</title>
+<style>
+body { font-family: -apple-system, sans-serif; max-width: 700px; margin: 40px auto; background: #f5f5f5; }
+#chat { background: white; border-radius: 12px; padding: 20px; min-height: 400px; max-height: 500px; overflow-y: auto; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.msg { margin: 12px 0; padding: 10px 14px; border-radius: 10px; max-width: 80%; line-height: 1.4; white-space: pre-wrap; }
+.user { background: #007aff; color: white; margin-left: auto; }
+.bot { background: #eee; color: #222; }
+.row { display: flex; }
+#inputRow { display: flex; margin-top: 16px; gap: 8px; }
+#questionInput { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 15px; }
+#sendBtn { padding: 12px 20px; border: none; background: #007aff; color: white; border-radius: 8px; cursor: pointer; }
+#sendBtn:disabled { background: #aaa; }
+#uploadBtn { padding: 8px 14px; border: none; background: #34c759; color: white; border-radius: 8px; cursor: pointer; }
+#uploadBtn:disabled { background: #aaa; }
+</style>
+</head>
+<body>
+
+<h2>GenAI Knowledge Assistant</h2>
+
+<div style="margin-bottom: 12px;">
+  <input type="file" id="fileInput" accept=".txt,.pdf,.docx" />
+  <button id="uploadBtn">Upload Document</button>
+  <span id="uploadStatus" style="margin-left: 10px; font-size: 13px; color: #555;"></span>
+</div>
+
+<div id="chat"></div>
+<div id="inputRow">
+  <input type="text" id="questionInput" placeholder="Ask about SmartPay..." />
+  <button id="sendBtn">Send</button>
+</div>
+
+<script>
+const chat = document.getElementById("chat");
+const input = document.getElementById("questionInput");
+const sendBtn = document.getElementById("sendBtn");
+const fileInput = document.getElementById("fileInput");
+const uploadBtn = document.getElementById("uploadBtn");
+const uploadStatus = document.getElementById("uploadStatus");
+
+function addMessage(text, sender) {
+  const row = document.createElement("div");
+  row.className = "row";
+  const bubble = document.createElement("div");
+  bubble.className = "msg " + sender;
+  bubble.textContent = text;
+  row.appendChild(bubble);
+  chat.appendChild(row);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+async function sendQuestion() {
+  const question = input.value.trim();
+  if (!question) return;
+
+  addMessage(question, "user");
+  input.value = "";
+  sendBtn.disabled = true;
+  addMessage("Thinking...", "bot");
+
+  try {
+    const response = await fetch("http://127.0.0.1:8000/ask", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question: question })
+    });
+    const data = await response.json();
+
+    chat.removeChild(chat.lastChild);
+    addMessage(data.answer, "bot");
+  } catch (err) {
+    chat.removeChild(chat.lastChild);
+    addMessage("Error: could not reach the server. Is uvicorn running?", "bot");
+  }
+
+  sendBtn.disabled = false;
+}
+
+uploadBtn.addEventListener("click", async () => {
+  const file = fileInput.files[0];
+  if (!file) {
+    uploadStatus.textContent = "Please choose a file first.";
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  uploadStatus.textContent = "Uploading...";
+  uploadBtn.disabled = true;
+
+  try {
+    const response = await fetch("http://127.0.0.1:8000/upload", {
+      method: "POST",
+      body: formData
+    });
+    const data = await response.json();
+    uploadStatus.textContent = `Added "${data.filename}" (${data.chunks_added} chunks).`;
+  } catch (err) {
+    uploadStatus.textContent = "Upload failed. Is the server running?";
+  }
+
+  uploadBtn.disabled = false;
+  fileInput.value = "";
+});
+
+sendBtn.addEventListener("click", sendQuestion);
+input.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") sendQuestion();
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,10 @@
+Benefits of SmartPay:
+- Convenience: customers don't need to carry cash, cards, or a phone to pay.
+- Speed: fingerprint matching can complete a transaction faster than inserting or tapping a card.
+- Reduced card fraud: since no physical card or number is exposed at checkout, skimming and card-cloning attacks become less effective.
+
+Drawbacks of SmartPay:
+- Privacy concerns: storing biometric data tied to financial accounts creates a high-value target for hackers; a breach could expose immutable biometric identifiers (you cannot change your fingerprint like you can change a password).
+- Accessibility issues: people with worn, injured, or otherwise unreadable fingerprints may be unable to use the system.
+- Centralization risk: if the fingerprint-matching servers go down, customers may be unable to pay at all, unlike carrying a backup card.
+- Regulatory complexity: biometric data storage is heavily regulated in many regions (e.g. Illinois' BIPA law in the US), requiring strict consent and security compliance.
